@@ -1,0 +1,1 @@
+"""Blueprits HTTP da aplicacao."""
