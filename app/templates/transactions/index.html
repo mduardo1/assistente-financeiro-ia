@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Movimentações | Assistente Financeiro IA{% endblock %}
+
+{% block content %}
+<section class="dashboard-grid">
+    <div class="form-stack">
+        <form class="panel form-card" action="{{ url_for('transactions.create_from_message') }}" method="post">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Parser financeiro</p>
+                    <h2>Lançar por mensagem</h2>
+                </div>
+            </div>
+
+            <label for="message">Mensagem</label>
+            <textarea id="message" name="message" rows="5" placeholder="Ex.: gastei 50 no mercado" required>{{ parser_form_data.message if parser_form_data else '' }}</textarea>
+
+            <button class="button" type="submit">Interpretar e salvar</button>
+        </form>
+
+        <form class="panel form-card" action="{{ url_for('transactions.create') }}" method="post">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Cadastro manual</p>
+                    <h2>Nova movimentação</h2>
+                </div>
+            </div>
+
+            <label for="type">Tipo</label>
+            <select id="type" name="type" required>
+                <option value="">Selecione</option>
+                <option value="income" {% if form_data and form_data.type == 'income' %}selected{% endif %}>Entrada</option>
+                <option value="expense" {% if form_data and form_data.type == 'expense' %}selected{% endif %}>Saída</option>
+            </select>
+
+            <label for="description">Descrição</label>
+            <input id="description" name="description" type="text" value="{{ form_data.description if form_data else '' }}" placeholder="Ex.: Compra no mercado" required>
+
+            <label for="category">Categoria</label>
+            <input id="category" name="category" type="text" value="{{ form_data.category if form_data else '' }}" placeholder="Ex.: mercado" required>
+
+            <label for="amount">Valor</label>
+            <input id="amount" name="amount" type="text" value="{{ form_data.amount if form_data else '' }}" placeholder="Ex.: 50.00" required>
+
+            <label for="transaction_date">Data</label>
+            <input id="transaction_date" name="transaction_date" type="date" value="{{ form_data.transaction_date if form_data else today }}" required>
+
+            <button class="button" type="submit">Salvar movimentação</button>
+        </form>
+    </div>
+
+    <section class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Histórico</p>
+                <h2>Movimentações registradas</h2>
+            </div>
+        </div>
+
+        {% if transactions %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Origem</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_date }}</td>
+                        <td>
+                            <span class="badge badge-{{ transaction.type }}">
+                                {{ "Entrada" if transaction.type == "income" else "Saída" }}
+                            </span>
+                        </td>
+                        <td>{{ transaction.description }}</td>
+                        <td>{{ transaction.category }}</td>
+                        <td>{{ transaction.source }}</td>
+                        <td class="{{ 'amount-income' if transaction.type == 'income' else 'amount-expense' }}">
+                            R$ {{ '%.2f'|format(transaction.amount) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhuma movimentação cadastrada ainda.</p>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

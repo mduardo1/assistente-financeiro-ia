@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro | Assistente Financeiro IA{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="panel panel-highlight">
+        <p class="eyebrow">Nova conta</p>
+        <h2>Comece seu controle financeiro</h2>
+        <p>Cadastre-se para registrar movimentações manuais hoje e evoluir para lançamentos automáticos por mensagem futuramente.</p>
+    </div>
+
+    <form class="panel form-card" action="{{ url_for('auth.register_post') }}" method="post">
+        <h2>Criar conta</h2>
+
+        <label for="name">Nome</label>
+        <input id="name" name="name" type="text" value="{{ form_data.name if form_data else '' }}" required>
+
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" value="{{ form_data.email if form_data else '' }}" required>
+
+        <label for="whatsapp">WhatsApp</label>
+        <input id="whatsapp" name="whatsapp" type="text" value="{{ form_data.whatsapp if form_data else '' }}" placeholder="(00) 00000-0000">
+
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" required>
+
+        <button class="button" type="submit">Criar conta</button>
+        <p class="form-footer">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+    </form>
+</section>
+{% endblock %}

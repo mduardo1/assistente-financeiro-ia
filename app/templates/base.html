@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Assistente Financeiro IA{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Sistema financeiro</p>
+                <h1>Assistente Financeiro IA</h1>
+            </div>
+            {% if session.get("user_id") %}
+            <div class="topbar-actions">
+                <nav class="main-nav">
+                    <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+                    <a href="{{ url_for('transactions.index') }}">Movimentações</a>
+                </nav>
+                <span class="user-chip">{{ session.get("user_name") }}</span>
+                <form action="{{ url_for('auth.logout') }}" method="post">
+                    <button class="button button-secondary" type="submit">Sair</button>
+                </form>
+            </div>
+            {% endif %}
+        </header>
+
+        <main class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-stack">
+                        {% for category, message in messages %}
+                            <div class="flash flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
