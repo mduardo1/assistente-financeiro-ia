@@ -1,5 +1,6 @@
 import pytest
 
+from app.services.openai_parser_service import OpenAIParserService
 from app.services.parser_service import ParserService
 
 
@@ -32,25 +33,22 @@ def test_parser_rejects_empty_message():
         ParserService().parse_message("")
 
 
-def test_parser_route_creates_transaction_from_message(client):
-    client.post(
-        "/auth/register",
-        data={
-            "name": "Moyses",
-            "email": "moyses@example.com",
-            "password": "123456",
-            "whatsapp": "",
-        },
-    )
-    client.post(
-        "/auth/login",
-        data={"email": "moyses@example.com", "password": "123456"},
-    )
+def test_validate_parsed_payload_rejects_negative_amount():
+    with pytest.raises(ValueError, match="valor negativo"):
+        ParserService().validate_parsed_payload(
+            {
+                "type": "expense",
+                "amount": -50,
+                "category": "mercado",
+                "description": "gastei 50 no mercado",
+                "transaction_date": "2026-04-25",
+            }
+        )
 
-    response = client.post(
-        "/transactions/parse",
-        data={"message": "paguei 120 de internet"},
-    )
 
-    assert response.status_code == 302
-    assert response.headers["Location"].endswith("/transactions/")
+def test_openai_parser_service_uses_local_fallback(app):
+    with app.app_context():
+        parsed = OpenAIParserService().parse_message("paguei 120 de internet")
+
+    assert parsed["type"] == "expense"
+    assert parsed["category"] == "internet"

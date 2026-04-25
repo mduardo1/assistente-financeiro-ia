@@ -1,76 +1,75 @@
 # Assistente Financeiro IA
 
-Sistema financeiro web em Flask para registrar entradas e saídas, interpretar mensagens financeiras e preparar a evolução futura para atendimento via WhatsApp.
+Plataforma financeira em Flask com experiência mais próxima de produto SaaS, parser financeiro local, camada opcional com OpenAI e consultas inteligentes iniciais no dashboard.
 
-## Descrição do projeto
+## Visão do produto
 
-O Assistente Financeiro IA foi estruturado como uma base profissional para controle financeiro pessoal ou de pequenos negócios. O projeto já entrega autenticação, dashboard, parser por mensagem, persistência em SQLite e uma organização clara para crescer com segurança.
+O projeto evolui o conceito de assistente financeiro para algo mais próximo de um produto digital real:
+
+- autenticação;
+- painel com visão executiva;
+- cadastro manual e por mensagem;
+- consultas financeiras rápidas;
+- preparação para IA e WhatsApp.
 
 ## Funcionalidades atuais
 
-- cadastro de usuário;
-- login com sessão;
-- logout;
-- senha com hash seguro;
-- dashboard financeiro;
-- cards de saldo, entradas e saídas;
-- gráfico de gastos por categoria com Chart.js;
-- estados vazios amigáveis;
-- cadastro manual de entradas;
-- cadastro manual de saídas;
-- listagem de movimentações;
+- cadastro e login de usuário;
+- sessão autenticada;
+- dashboard financeiro com resumos;
+- gráfico de entradas vs saídas;
+- gráfico de gastos por categoria;
 - parser financeiro por mensagem;
+- fallback local para interpretação;
+- camada opcional de IA com OpenAI;
+- cadastro manual de entradas e saídas;
+- filtros em movimentações;
 - rota fake de webhook para WhatsApp;
-- base inicial para futuras consultas financeiras por texto;
-- testes automatizados cobrindo fluxos principais.
+- consultas financeiras locais no dashboard;
+- páginas institucionais do produto.
 
-## Melhorias implementadas nesta etapa
+## Funcionalidades com IA
 
-- UX/UI renovada com layout mais moderno, melhor espaçamento e responsividade;
-- mensagens flash mais elegantes e legíveis;
-- loading visual nos botões de login, cadastro, parser e nova movimentação;
-- Post/Redirect/Get nas operações de sucesso em transações;
-- validação monetária com suporte a vírgula e ponto;
-- bloqueio de valores negativos e inválidos;
-- parser financeiro com cobertura para mais palavras-chave;
-- gráfico real de categorias usando dados do backend;
-- documentação expandida;
-- testes adicionais para parser e validações.
+Quando habilitado, o sistema tenta usar a OpenAI para extrair JSON estruturado da mensagem financeira. Se a API não estiver configurada ou a resposta vier inválida, o sistema usa automaticamente o parser local como fallback.
 
-## Tecnologias usadas
+## Como configurar a OpenAI
 
-- Python
-- Flask
-- HTML
-- CSS
-- JavaScript
-- SQLite
-- Jinja2
-- Chart.js
-- Pytest
+Copie o `.env.example` para `.env` e configure:
 
-## Como instalar
+```env
+OPENAI_API_KEY=
+USE_OPENAI_PARSER=false
+```
+
+## Como rodar sem IA
+
+Deixe:
+
+```env
+USE_OPENAI_PARSER=false
+```
+
+Depois:
 
 ```bash
 pip install -r requirements.txt
-```
-
-Para desenvolvimento e testes:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-## Como rodar
-
-```bash
 python run.py
 ```
 
-## Como acessar no navegador
+## Como rodar com IA
 
-```text
-http://127.0.0.1:5000
+Configure no `.env`:
+
+```env
+OPENAI_API_KEY=sua_chave_aqui
+USE_OPENAI_PARSER=true
+```
+
+Depois:
+
+```bash
+pip install -r requirements.txt
+python run.py
 ```
 
 ## Como testar
@@ -79,9 +78,9 @@ http://127.0.0.1:5000
 python -m pytest tests
 ```
 
-## Como usar o parser
+## Parser financeiro
 
-No painel de movimentações, use o bloco "Lançar por mensagem" com frases como:
+Exemplos suportados:
 
 - `gastei 50 no mercado`
 - `paguei 120 de internet`
@@ -90,12 +89,24 @@ No painel de movimentações, use o bloco "Lançar por mensagem" com frases como
 - `ganhei 1000 da venda do iphone`
 - `vendi 500 em móveis`
 
+## Rotas principais
+
+- `/auth/login`
+- `/auth/register`
+- `/dashboard/`
+- `/dashboard/query`
+- `/transactions/`
+- `/transactions/parse`
+- `/webhooks/whatsapp`
+- `/sobre`
+- `/como-funciona`
+- `/proximos-recursos`
+
 ## Estrutura do projeto
 
 ```text
 assistente-financeiro-ia/
 ├── app/
-│   ├── __init__.py
 │   ├── config.py
 │   ├── database/
 │   ├── models/
@@ -108,40 +119,21 @@ assistente-financeiro-ia/
 ├── run.py
 ├── requirements.txt
 ├── requirements-dev.txt
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
 ## Estratégia de branches
 
-- `main`: somente versão estável;
-- `develop`: integração de desenvolvimento;
-- `feature/professional-improvements`: melhorias profissionais desta etapa;
-- demais features podem continuar segmentadas por domínio ou tela.
-
-## Fluxo do sistema
-
-1. O usuário cria conta ou faz login.
-2. A sessão é mantida pelo Flask.
-3. O usuário registra movimentações manualmente ou por texto.
-4. O SQLite persiste os dados.
-5. O dashboard consolida saldo, categorias e atividade recente.
+- `main`: somente versão estável
+- `develop`: integração principal
+- `feature/professional-improvements`: melhorias profissionais
+- `feature/product-ai`: evolução para produto + IA
 
 ## Próximos passos
 
-- consultas financeiras por texto;
 - integração real com WhatsApp Business API;
-- filtros por período;
+- respostas automáticas no webhook;
+- perguntas financeiras mais avançadas;
 - edição e exclusão de lançamentos;
-- exportação de dados;
-- limpeza segura da pasta `src/` em branch dedicada, após confirmação final.
-
-## Observação sobre `src/`
-
-A pasta `src/` continua no repositório, mas a aplicação em uso roda por `app/` e `run.py`. A recomendação é remover `src/` apenas depois de uma revisão final em branch separada, para não apagar nada sem necessidade.
-
-## Documentação complementar
-
-- [Arquitetura](docs/arquitetura.md)
-- [Fluxo WhatsApp](docs/fluxo-whatsapp.md)
-- [Melhorias Futuras](docs/melhorias-futuras.md)
+- planos SaaS completos por perfil;
+- remoção segura da pasta `src/` em branch dedicada após revisão final.
