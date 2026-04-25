@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Assistente Financeiro IA{% endblock %}
+
+{% block content %}
+<section class="summary-grid">
+    <article class="panel metric-card">
+        <p class="eyebrow">Saldo total</p>
+        <h2>R$ {{ '%.2f'|format(summary.balance) }}</h2>
+        <p class="{{ 'amount-income' if summary.balance >= 0 else 'amount-expense' }}">
+            {{ "Situação positiva" if summary.balance >= 0 else "Atenção ao fluxo de caixa" }}
+        </p>
+    </article>
+
+    <article class="panel metric-card">
+        <p class="eyebrow">Entradas</p>
+        <h2>R$ {{ '%.2f'|format(summary.total_income) }}</h2>
+        <p class="amount-income">Receitas acumuladas</p>
+    </article>
+
+    <article class="panel metric-card">
+        <p class="eyebrow">Saídas</p>
+        <h2>R$ {{ '%.2f'|format(summary.total_expense) }}</h2>
+        <p class="amount-expense">Despesas acumuladas</p>
+    </article>
+</section>
+
+<section class="dashboard-layout">
+    <article class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Categorias</p>
+                <h2>Gastos por categoria</h2>
+            </div>
+        </div>
+
+        {% if summary.expenses_by_category %}
+        <div class="category-list">
+            {% for item in summary.expenses_by_category %}
+            <div class="category-row">
+                <strong>{{ item.category }}</strong>
+                <span>R$ {{ '%.2f'|format(item.total) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Ainda não há saídas registradas para agrupar.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Últimos lançamentos</p>
+                <h2>Movimentações recentes</h2>
+            </div>
+        </div>
+
+        {% if summary.recent_transactions %}
+        <div class="activity-list">
+            {% for transaction in summary.recent_transactions %}
+            <div class="activity-item">
+                <div>
+                    <strong>{{ transaction.description }}</strong>
+                    <p>{{ transaction.transaction_date }} • {{ transaction.category }} • {{ transaction.source }}</p>
+                </div>
+                <span class="{{ 'amount-income' if transaction.type == 'income' else 'amount-expense' }}">
+                    {{ '+' if transaction.type == 'income' else '-' }}R$ {{ '%.2f'|format(transaction.amount) }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Nenhuma movimentação recente encontrada.</p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}
