@@ -1,6 +1,6 @@
 from datetime import date
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from app.routes.auth import login_required
 from app.services.parser_service import ParserService
@@ -53,12 +53,7 @@ def create():
         )
 
     flash(message, "success")
-    transactions = service.list_transactions(session["user_id"])
-    return render_template(
-        "transactions/index.html",
-        transactions=transactions,
-        today=date.today().isoformat(),
-    )
+    return redirect(url_for("transactions.index"))
 
 
 @transactions_bp.post("/parse")
@@ -103,9 +98,4 @@ def create_from_message():
         )
 
     flash("Mensagem interpretada e movimentação salva com sucesso.", "success")
-    transactions = transaction_service.list_transactions(session["user_id"])
-    return render_template(
-        "transactions/index.html",
-        transactions=transactions,
-        today=date.today().isoformat(),
-    )
+    return redirect(url_for("transactions.index"))
