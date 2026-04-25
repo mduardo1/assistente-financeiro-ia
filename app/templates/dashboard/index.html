@@ -11,7 +11,7 @@
     <div>
         <p class="eyebrow">Resumo financeiro</p>
         <h2>Painel central do produto</h2>
-        <p class="hero-text">Acompanhe caixa, lançamentos e tendências financeiras com uma visão clara, mais próxima de uma experiência SaaS.</p>
+        <p class="hero-text">Acompanhe caixa, lançamentos, tendências e consultas rápidas com uma experiência mais próxima de um assistente financeiro real.</p>
     </div>
     <div class="hero-side-info">
         <span class="hero-kpi-label">Total de lançamentos</span>
@@ -152,12 +152,12 @@
     <article class="panel query-panel">
         <div class="section-heading">
             <div>
-                <p class="eyebrow">Pergunte ao assistente financeiro</p>
+                <p class="eyebrow">Pergunte ao Assistente Financeiro</p>
                 <h2>Consultas locais inteligentes</h2>
             </div>
         </div>
 
-        <form action="{{ url_for('dashboard.query') }}" method="post" class="form-card" data-loading-form>
+        <form action="{{ url_for('dashboard.ask') }}" method="post" class="form-card" data-loading-form>
             <label for="question">Sua pergunta</label>
             <input
                 id="question"
