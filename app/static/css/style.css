@@ -133,6 +133,15 @@ textarea {
     gap: 12px;
 }
 
+.main-nav {
+    display: flex;
+    gap: 14px;
+}
+
+.main-nav a {
+    font-weight: 700;
+}
+
 .user-chip {
     padding: 10px 14px;
     border-radius: 999px;
@@ -181,6 +190,70 @@ textarea {
     color: var(--muted);
 }
 
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+    gap: 24px;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(217, 200, 172, 0.8);
+    text-align: left;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.badge-income {
+    background: rgba(20, 83, 45, 0.12);
+    color: var(--accent);
+}
+
+.badge-expense {
+    background: rgba(138, 28, 28, 0.12);
+    color: var(--danger);
+}
+
+.amount-income {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.amount-expense {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.empty-state {
+    color: var(--muted);
+    margin: 0;
+}
+
 @media (max-width: 720px) {
     .app-shell {
         width: min(100% - 24px, 1120px);
@@ -195,5 +268,9 @@ textarea {
     .topbar-actions {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
     }
 }
