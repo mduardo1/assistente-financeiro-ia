@@ -6,6 +6,7 @@ from app.routes.auth import auth_bp
 from app.routes.core import core_bp
 from app.routes.dashboard import dashboard_bp
 from app.routes.transactions import transactions_bp
+from app.routes.webhook import webhook_bp
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:
@@ -23,5 +24,6 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(transactions_bp)
+    app.register_blueprint(webhook_bp)
 
     return app
