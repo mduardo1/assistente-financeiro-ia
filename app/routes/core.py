@@ -17,4 +17,4 @@ def home():
     if not session.get("user_id"):
         return redirect(url_for("auth.login"))
 
-    return render_template("home.html")
+    return redirect(url_for("transactions.index"))

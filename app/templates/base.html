@@ -15,6 +15,9 @@
             </div>
             {% if session.get("user_id") %}
             <div class="topbar-actions">
+                <nav class="main-nav">
+                    <a href="{{ url_for('transactions.index') }}">Movimentações</a>
+                </nav>
                 <span class="user-chip">{{ session.get("user_name") }}</span>
                 <form action="{{ url_for('auth.logout') }}" method="post">
                     <button class="button button-secondary" type="submit">Sair</button>
