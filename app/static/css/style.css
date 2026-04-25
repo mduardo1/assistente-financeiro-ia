@@ -196,6 +196,11 @@ textarea {
     gap: 24px;
 }
 
+.form-stack {
+    display: grid;
+    gap: 24px;
+}
+
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
