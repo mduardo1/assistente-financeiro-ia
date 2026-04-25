@@ -14,13 +14,14 @@
             <div class="brand-block">
                 <p class="eyebrow">SaaS financeiro com IA</p>
                 <h1>Assistente Financeiro IA</h1>
-                <p class="brand-subtitle">Controle receitas, despesas e mensagens financeiras com uma experiência mais próxima de produto real.</p>
+                <p class="brand-subtitle">Controle receitas, despesas, mensagens financeiras e futuras integrações com WhatsApp em uma experiência de produto real.</p>
             </div>
             <div class="topbar-actions">
                 <nav class="main-nav">
                     {% if session.get("user_id") %}
                     <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
                     <a href="{{ url_for('transactions.index') }}">Movimentações</a>
+                    <a href="{{ url_for('transactions.whatsapp_simulator') }}">Simulador WhatsApp</a>
                     {% endif %}
                     <a href="{{ url_for('core.about') }}">Sobre</a>
                     <a href="{{ url_for('core.how_it_works') }}">Como funciona</a>

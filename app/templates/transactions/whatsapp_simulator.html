@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Simulador WhatsApp | Assistente Financeiro IA{% endblock %}
+
+{% block content %}
+<section class="page-intro panel">
+    <p class="eyebrow">Simulador WhatsApp</p>
+    <h2>Teste o fluxo de mensagens como conversa</h2>
+    <p>Digite uma mensagem como se fosse WhatsApp. O sistema tenta interpretar com OpenAI quando ativado e usa fallback local quando necessário.</p>
+</section>
+
+<section class="dashboard-layout">
+    <article class="panel">
+        <form action="{{ url_for('transactions.whatsapp_simulator_post') }}" method="post" class="form-card" data-loading-form>
+            <label for="message">Mensagem</label>
+            <textarea id="message" name="message" rows="5" placeholder="Ex.: gastei 50 no mercado" required></textarea>
+            <button class="button button-primary" type="submit" data-loading-text="Enviando...">Enviar mensagem</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Histórico</p>
+                <h2>Últimas conversas simuladas</h2>
+            </div>
+        </div>
+
+        {% if history %}
+        <div class="chat-history">
+            {% for item in history %}
+            <div class="chat-bubble chat-user">{{ item.message }}</div>
+            <div class="chat-bubble chat-assistant">{{ item.reply }}</div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-card">
+            <h3>Sem conversas simuladas</h3>
+            <p>Digite uma mensagem para testar o comportamento do assistente como se fosse um chat de WhatsApp.</p>
+        </div>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

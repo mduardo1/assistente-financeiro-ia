@@ -3,7 +3,7 @@ from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from app.routes.auth import login_required
-from app.services.openai_parser_service import OpenAIParserService
+from app.services.message_transaction_service import MessageTransactionService
 from app.services.transaction_service import TransactionService
 
 
@@ -71,44 +71,24 @@ def create():
 @transactions_bp.post("/parse")
 @login_required
 def create_from_message():
-    parser_service = OpenAIParserService()
     transaction_service = TransactionService()
-    message = request.form.get("message", "")
+    categories = transaction_service.list_categories(session["user_id"])
 
     try:
-        parsed_data = parser_service.parse_message(message)
-    except ValueError as error:
-        flash(str(error), "danger")
-        transactions = transaction_service.list_transactions(session["user_id"])
-        categories = transaction_service.list_categories(session["user_id"])
-        return (
-            render_template(
-                "transactions/index.html",
-                transactions=transactions,
-                categories=categories,
-                parser_form_data={"message": message},
-                filters={"type": "", "category": "", "date_start": "", "date_end": ""},
-                today=date.today().isoformat(),
-            ),
-            400,
+        saved = MessageTransactionService().parse_and_save(
+            user_id=session["user_id"],
+            message=request.form.get("message", ""),
+            source="ai_parser",
         )
-
-    success, service_message = transaction_service.create_transaction(
-        user_id=session["user_id"],
-        form_data=parsed_data,
-        source="ai_parser",
-    )
-
-    if not success:
-        flash(service_message, "danger")
+    except ValueError as error:
         transactions = transaction_service.list_transactions(session["user_id"])
-        categories = transaction_service.list_categories(session["user_id"])
+        flash(str(error), "danger")
         return (
             render_template(
                 "transactions/index.html",
                 transactions=transactions,
                 categories=categories,
-                parser_form_data={"message": message},
+                parser_form_data={"message": request.form.get("message", "")},
                 filters={"type": "", "category": "", "date_start": "", "date_end": ""},
                 today=date.today().isoformat(),
             ),
@@ -117,3 +97,46 @@ def create_from_message():
 
     flash("Mensagem interpretada e movimentação salva com sucesso.", "success")
     return redirect(url_for("transactions.index"))
+
+
+@transactions_bp.get("/simulador-whatsapp")
+@login_required
+def whatsapp_simulator():
+    history = session.get("whatsapp_simulator_history", [])
+    return render_template(
+        "transactions/whatsapp_simulator.html",
+        history=history,
+    )
+
+
+@transactions_bp.post("/simulador-whatsapp")
+@login_required
+def whatsapp_simulator_post():
+    message = request.form.get("message", "")
+    history = session.get("whatsapp_simulator_history", [])
+
+    try:
+        saved = MessageTransactionService().parse_and_save(
+            user_id=session["user_id"],
+            message=message,
+            source="whatsapp_simulator",
+        )
+        reply = (
+            f"✅ Movimentação salva: "
+            f"{'entrada' if saved.parsed_data['type'] == 'income' else 'saída'} "
+            f"de R$ {float(saved.parsed_data['amount']):.2f} em {saved.parsed_data['category']}."
+        )
+        flash("Mensagem simulada processada com sucesso.", "success")
+    except ValueError as error:
+        reply = str(error)
+        flash("Não foi possível processar a mensagem simulada.", "danger")
+
+    history.insert(
+        0,
+        {
+            "message": message,
+            "reply": reply,
+        },
+    )
+    session["whatsapp_simulator_history"] = history[:8]
+    return redirect(url_for("transactions.whatsapp_simulator"))

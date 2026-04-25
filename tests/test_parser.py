@@ -46,9 +46,37 @@ def test_validate_parsed_payload_rejects_negative_amount():
         )
 
 
+def test_validate_parsed_payload_defaults_missing_date():
+    parsed = ParserService().validate_parsed_payload(
+        {
+            "type": "expense",
+            "amount": 50,
+            "category": "mercado",
+            "description": "gastei 50 no mercado",
+            "transaction_date": None,
+        }
+    )
+
+    assert parsed["transaction_date"]
+
+
 def test_openai_parser_service_uses_local_fallback(app):
     with app.app_context():
         parsed = OpenAIParserService().parse_message("paguei 120 de internet")
 
     assert parsed["type"] == "expense"
     assert parsed["category"] == "internet"
+
+
+def test_openai_parser_service_falls_back_on_invalid_ai_payload(app, monkeypatch):
+    def fake_parse(_message: str):
+        return {"type": "income", "amount": -10}
+
+    with app.app_context():
+        monkeypatch.setattr(OpenAIParserService, "_parse_with_openai", lambda self, message: fake_parse(message))
+        app.config["USE_OPENAI_PARSER"] = True
+        app.config["OPENAI_API_KEY"] = "test-key"
+        parsed = OpenAIParserService().parse_message("recebi 300 de cliente")
+
+    assert parsed["type"] == "income"
+    assert parsed["category"] == "cliente"
