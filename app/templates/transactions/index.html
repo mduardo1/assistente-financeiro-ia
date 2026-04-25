@@ -5,8 +5,8 @@
 {% block content %}
 <section class="page-intro panel">
     <p class="eyebrow">Lançamentos financeiros</p>
-    <h2>Cadastre, interprete e acompanhe movimentações</h2>
-    <p>Use cadastro manual para entradas e saídas ou deixe o parser transformar frases em lançamentos reais.</p>
+    <h2>Cadastre, filtre e interprete movimentações com mais conforto</h2>
+    <p>Use cadastro manual, parser por mensagem e filtros simples para encontrar rapidamente o que precisa.</p>
 </section>
 
 <section class="dashboard-grid">
@@ -21,7 +21,7 @@
 
             <label for="message">Mensagem</label>
             <textarea id="message" name="message" rows="5" placeholder="Ex.: gastei 50 no mercado" required>{{ parser_form_data.message if parser_form_data else '' }}</textarea>
-            <p class="helper-text">Exemplos: "paguei 120 de internet", "recebi 300 de cliente", "vendi 500 em móveis".</p>
+            <p class="helper-text">Com IA opcional ativada, o sistema tenta interpretar a mensagem pela OpenAI e usa o parser local como fallback.</p>
 
             <button class="button button-primary" type="submit" data-loading-text="Salvando...">Interpretar e salvar</button>
         </form>
@@ -64,6 +64,29 @@
                 <h2>Movimentações registradas</h2>
             </div>
         </div>
+
+        <form class="filter-bar" method="get" action="{{ url_for('transactions.index') }}">
+            <select name="type">
+                <option value="">Todos os tipos</option>
+                <option value="income" {% if filters.type == 'income' %}selected{% endif %}>Entradas</option>
+                <option value="expense" {% if filters.type == 'expense' %}selected{% endif %}>Saídas</option>
+            </select>
+
+            <select name="category">
+                <option value="">Todas as categorias</option>
+                {% for category in categories %}
+                <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="date" name="date_start" value="{{ filters.date_start }}">
+            <input type="date" name="date_end" value="{{ filters.date_end }}">
+
+            <div class="filter-actions">
+                <button class="button button-primary" type="submit">Aplicar filtros</button>
+                <a class="button button-secondary" href="{{ url_for('transactions.index') }}">Limpar filtros</a>
+            </div>
+        </form>
 
         {% if transactions %}
         <div class="table-wrapper">

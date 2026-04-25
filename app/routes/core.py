@@ -18,3 +18,18 @@ def home():
         return redirect(url_for("auth.login"))
 
     return redirect(url_for("dashboard.index"))
+
+
+@core_bp.get("/sobre")
+def about():
+    return render_template("pages/about.html")
+
+
+@core_bp.get("/como-funciona")
+def how_it_works():
+    return render_template("pages/how_it_works.html")
+
+
+@core_bp.get("/proximos-recursos")
+def next_features():
+    return render_template("pages/next_features.html")

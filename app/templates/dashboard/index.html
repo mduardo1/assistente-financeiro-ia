@@ -10,13 +10,13 @@
 <section class="hero-summary panel">
     <div>
         <p class="eyebrow">Resumo financeiro</p>
-        <h2>Painel geral do seu caixa</h2>
-        <p class="hero-text">Acompanhe saldo, movimentações e comportamento das despesas por categoria em um único lugar.</p>
+        <h2>Painel central do produto</h2>
+        <p class="hero-text">Acompanhe caixa, lançamentos e tendências financeiras com uma visão clara, mais próxima de uma experiência SaaS.</p>
     </div>
     <div class="hero-side-info">
         <span class="hero-kpi-label">Total de lançamentos</span>
         <strong>{{ summary.transaction_count }}</strong>
-        <span class="hero-kpi-subtitle">Registros consolidados até agora</span>
+        <span class="hero-kpi-subtitle">Registros consolidados no sistema</span>
     </div>
 </section>
 
@@ -28,13 +28,11 @@
             {{ "Situação positiva" if summary.balance >= 0 else "Atenção ao fluxo de caixa" }}
         </p>
     </article>
-
     <article class="panel metric-card">
         <p class="eyebrow">Entradas</p>
         <h2>R$ {{ '%.2f'|format(summary.total_income) }}</h2>
         <p class="amount-income">Receitas acumuladas</p>
     </article>
-
     <article class="panel metric-card">
         <p class="eyebrow">Saídas</p>
         <h2>R$ {{ '%.2f'|format(summary.total_expense) }}</h2>
@@ -42,7 +40,59 @@
     </article>
 </section>
 
+<section class="summary-grid secondary-grid">
+    <article class="panel metric-card">
+        <p class="eyebrow">Maior gasto</p>
+        {% if summary.biggest_expense %}
+        <h2>R$ {{ '%.2f'|format(summary.biggest_expense.amount) }}</h2>
+        <p>{{ summary.biggest_expense.description }}</p>
+        {% else %}
+        <div class="empty-state-card">
+            <p>Nenhuma despesa registrada ainda.</p>
+        </div>
+        {% endif %}
+    </article>
+    <article class="panel metric-card">
+        <p class="eyebrow">Maior entrada</p>
+        {% if summary.biggest_income %}
+        <h2>R$ {{ '%.2f'|format(summary.biggest_income.amount) }}</h2>
+        <p>{{ summary.biggest_income.description }}</p>
+        {% else %}
+        <div class="empty-state-card">
+            <p>Nenhuma entrada registrada ainda.</p>
+        </div>
+        {% endif %}
+    </article>
+    <article class="panel metric-card">
+        <p class="eyebrow">Categoria líder</p>
+        {% if summary.top_expense_category %}
+        <h2>{{ summary.top_expense_category.category }}</h2>
+        <p>R$ {{ '%.2f'|format(summary.top_expense_category.amount) }}</p>
+        {% else %}
+        <div class="empty-state-card">
+            <p>Sem categoria líder no momento.</p>
+        </div>
+        {% endif %}
+    </article>
+</section>
+
 <section class="dashboard-layout">
+    <article class="panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Entradas vs saídas</p>
+                <h2>Fluxo financeiro</h2>
+            </div>
+        </div>
+        <div class="chart-shell">
+            <canvas
+                id="incomeExpenseChart"
+                data-chart-labels='{{ summary.income_vs_expense_chart.labels|tojson }}'
+                data-chart-values='{{ summary.income_vs_expense_chart["values"]|tojson }}'>
+            </canvas>
+        </div>
+    </article>
+
     <article class="panel">
         <div class="section-heading">
             <div>
@@ -59,22 +109,16 @@
                 data-chart-values='{{ summary.chart_data["values"]|tojson }}'>
             </canvas>
         </div>
-        <div class="category-list">
-            {% for item in summary.expenses_by_category %}
-            <div class="category-row">
-                <strong>{{ item.category }}</strong>
-                <span>R$ {{ '%.2f'|format(item.total) }}</span>
-            </div>
-            {% endfor %}
-        </div>
         {% else %}
         <div class="empty-state-card">
             <h3>Nenhuma categoria registrada</h3>
-            <p>Cadastre uma saída para começar a visualizar os gastos por categoria no gráfico.</p>
+            <p>Cadastre uma saída para visualizar os gastos por categoria no gráfico.</p>
         </div>
         {% endif %}
     </article>
+</section>
 
+<section class="dashboard-layout">
     <article class="panel">
         <div class="section-heading">
             <div>
@@ -104,66 +148,111 @@
         </div>
         {% endif %}
     </article>
-</section>
 
-<section class="panel query-prep-panel">
-    <div class="section-heading">
-        <div>
-            <p class="eyebrow">Consultas futuras</p>
-            <h2>Base preparada para perguntas financeiras</h2>
+    <article class="panel query-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Pergunte ao assistente financeiro</p>
+                <h2>Consultas locais inteligentes</h2>
+            </div>
         </div>
-    </div>
-    <p class="query-prep-text">O sistema já está preparado para evoluir para consultas por texto. Exemplos planejados:</p>
-    <div class="feature-pill-list">
-        {% for item in query_capabilities.supported_examples %}
-        <span class="feature-pill">{{ item }}</span>
-        {% endfor %}
-    </div>
+
+        <form action="{{ url_for('dashboard.query') }}" method="post" class="form-card" data-loading-form>
+            <label for="question">Sua pergunta</label>
+            <input
+                id="question"
+                name="question"
+                type="text"
+                value="{{ query_value }}"
+                placeholder="Ex.: quanto tenho em caixa?"
+                required>
+            <button class="button button-primary" type="submit" data-loading-text="Consultando...">Perguntar</button>
+        </form>
+
+        <div class="feature-pill-list">
+            {% for item in query_capabilities.supported_examples %}
+            <span class="feature-pill">{{ item }}</span>
+            {% endfor %}
+        </div>
+
+        {% if query_answer %}
+        <div class="assistant-answer">
+            <strong>Resposta</strong>
+            <p>{{ query_answer }}</p>
+        </div>
+        {% endif %}
+    </article>
 </section>
 {% endblock %}
 
 {% block body_scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const chartElement = document.getElementById("expensesChart");
+        const buildChart = (elementId, config) => {
+            const chartElement = document.getElementById(elementId);
 
-        if (!chartElement) {
-            return;
-        }
+            if (!chartElement) {
+                return;
+            }
 
-        const labels = JSON.parse(chartElement.dataset.chartLabels || "[]");
-        const values = JSON.parse(chartElement.dataset.chartValues || "[]");
+            const labels = JSON.parse(chartElement.dataset.chartLabels || "[]");
+            const values = JSON.parse(chartElement.dataset.chartValues || "[]");
 
-        if (!labels.length || !values.length) {
-            return;
-        }
+            if (!labels.length || !values.length) {
+                return;
+            }
 
-        new Chart(chartElement, {
+            new Chart(chartElement, {
+                ...config,
+                data: {
+                    labels,
+                    datasets: config.datasets.map((dataset) => ({
+                        ...dataset,
+                        data: values
+                    }))
+                }
+            });
+        };
+
+        buildChart("expensesChart", {
             type: "doughnut",
-            data: {
-                labels,
-                datasets: [
-                    {
-                        data: values,
-                        backgroundColor: [
-                            "#14532d",
-                            "#2f855a",
-                            "#c28a2c",
-                            "#5f7d95",
-                            "#9b5b28",
-                            "#8a1c1c"
-                        ],
-                        borderColor: "#fffdfa",
-                        borderWidth: 4
-                    }
-                ]
-            },
+            datasets: [
+                {
+                    backgroundColor: ["#14532d", "#2f855a", "#c28a2c", "#5f7d95", "#9b5b28", "#8a1c1c"],
+                    borderColor: "#fffdfa",
+                    borderWidth: 4
+                }
+            ],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: "bottom"
+                    }
+                }
+            }
+        });
+
+        buildChart("incomeExpenseChart", {
+            type: "bar",
+            datasets: [
+                {
+                    backgroundColor: ["#14532d", "#8c1d18"],
+                    borderRadius: 12
+                }
+            ],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
