@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Assistente Financeiro IA{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_scripts %}{% endblock %}
 </head>
 <body>
+    <div class="page-background"></div>
     <div class="app-shell">
         <header class="topbar">
-            <div>
-                <p class="eyebrow">Sistema financeiro</p>
+            <div class="brand-block">
+                <p class="eyebrow">Sistema financeiro inteligente</p>
                 <h1>Assistente Financeiro IA</h1>
+                <p class="brand-subtitle">Controle receitas, despesas e o histórico financeiro com uma interface clara, elegante e preparada para evoluir.</p>
             </div>
             {% if session.get("user_id") %}
             <div class="topbar-actions">
@@ -19,10 +22,12 @@
                     <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
                     <a href="{{ url_for('transactions.index') }}">Movimentações</a>
                 </nav>
-                <span class="user-chip">{{ session.get("user_name") }}</span>
-                <form action="{{ url_for('auth.logout') }}" method="post">
-                    <button class="button button-secondary" type="submit">Sair</button>
-                </form>
+                <div class="profile-actions">
+                    <span class="user-chip">{{ session.get("user_name") }}</span>
+                    <form action="{{ url_for('auth.logout') }}" method="post">
+                        <button class="button button-secondary" type="submit">Sair</button>
+                    </form>
+                </div>
             </div>
             {% endif %}
         </header>
@@ -30,9 +35,12 @@
         <main class="content">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="flash-stack">
+                    <div class="flash-stack" aria-live="polite">
                         {% for category, message in messages %}
-                            <div class="flash flash-{{ category }}">{{ message }}</div>
+                            <div class="flash flash-{{ category }}">
+                                <strong>{{ category|capitalize }}</strong>
+                                <span>{{ message }}</span>
+                            </div>
                         {% endfor %}
                     </div>
                 {% endif %}
@@ -43,5 +51,6 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block body_scripts %}{% endblock %}
 </body>
 </html>

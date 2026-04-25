@@ -2,7 +2,24 @@
 
 {% block title %}Dashboard | Assistente Financeiro IA{% endblock %}
 
+{% block head_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
+<section class="hero-summary panel">
+    <div>
+        <p class="eyebrow">Resumo financeiro</p>
+        <h2>Painel geral do seu caixa</h2>
+        <p class="hero-text">Acompanhe saldo, movimentações e comportamento das despesas por categoria em um único lugar.</p>
+    </div>
+    <div class="hero-side-info">
+        <span class="hero-kpi-label">Total de lançamentos</span>
+        <strong>{{ summary.transaction_count }}</strong>
+        <span class="hero-kpi-subtitle">Registros consolidados até agora</span>
+    </div>
+</section>
+
 <section class="summary-grid">
     <article class="panel metric-card">
         <p class="eyebrow">Saldo total</p>
@@ -35,6 +52,13 @@
         </div>
 
         {% if summary.expenses_by_category %}
+        <div class="chart-shell">
+            <canvas
+                id="expensesChart"
+                data-chart-labels='{{ summary.chart_data.labels|tojson }}'
+                data-chart-values='{{ summary.chart_data["values"]|tojson }}'>
+            </canvas>
+        </div>
         <div class="category-list">
             {% for item in summary.expenses_by_category %}
             <div class="category-row">
@@ -44,7 +68,10 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty-state">Ainda não há saídas registradas para agrupar.</p>
+        <div class="empty-state-card">
+            <h3>Nenhuma categoria registrada</h3>
+            <p>Cadastre uma saída para começar a visualizar os gastos por categoria no gráfico.</p>
+        </div>
         {% endif %}
     </article>
 
@@ -71,8 +98,76 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty-state">Nenhuma movimentação recente encontrada.</p>
+        <div class="empty-state-card">
+            <h3>Sem lançamentos recentes</h3>
+            <p>Nenhuma movimentação recente encontrada. Cadastre uma entrada ou saída para alimentar o dashboard.</p>
+        </div>
         {% endif %}
     </article>
 </section>
+
+<section class="panel query-prep-panel">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Consultas futuras</p>
+            <h2>Base preparada para perguntas financeiras</h2>
+        </div>
+    </div>
+    <p class="query-prep-text">O sistema já está preparado para evoluir para consultas por texto. Exemplos planejados:</p>
+    <div class="feature-pill-list">
+        {% for item in query_capabilities.supported_examples %}
+        <span class="feature-pill">{{ item }}</span>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chartElement = document.getElementById("expensesChart");
+
+        if (!chartElement) {
+            return;
+        }
+
+        const labels = JSON.parse(chartElement.dataset.chartLabels || "[]");
+        const values = JSON.parse(chartElement.dataset.chartValues || "[]");
+
+        if (!labels.length || !values.length) {
+            return;
+        }
+
+        new Chart(chartElement, {
+            type: "doughnut",
+            data: {
+                labels,
+                datasets: [
+                    {
+                        data: values,
+                        backgroundColor: [
+                            "#14532d",
+                            "#2f855a",
+                            "#c28a2c",
+                            "#5f7d95",
+                            "#9b5b28",
+                            "#8a1c1c"
+                        ],
+                        borderColor: "#fffdfa",
+                        borderWidth: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
