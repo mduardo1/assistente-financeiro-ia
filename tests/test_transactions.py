@@ -1,4 +1,9 @@
-def test_create_transaction_registers_income(client):
+import pytest
+
+from app.services.transaction_service import TransactionService
+
+
+def login_default_user(client):
     client.post(
         "/auth/register",
         data={
@@ -13,6 +18,10 @@ def test_create_transaction_registers_income(client):
         data={"email": "moyses@example.com", "password": "123456"},
     )
 
+
+def test_create_transaction_redirects_after_success(client):
+    login_default_user(client)
+
     response = client.post(
         "/transactions/",
         data={
@@ -24,7 +33,70 @@ def test_create_transaction_registers_income(client):
         },
     )
 
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/transactions/")
+
+
+def test_create_transaction_accepts_comma_value(client):
+    login_default_user(client)
+
+    client.post(
+        "/transactions/",
+        data={
+            "type": "expense",
+            "description": "Compra no mercado",
+            "category": "mercado",
+            "amount": "50,25",
+            "transaction_date": "2026-04-25",
+        },
+    )
+
+    response = client.get("/transactions/")
+
     assert response.status_code == 200
-    assert "Movimentação registrada com sucesso".encode("utf-8") in response.data
-    assert b"Venda de movel" in response.data
-    assert b"R$ 500.00" in response.data
+    assert "R$ 50.25".encode("utf-8") in response.data
+
+
+def test_create_transaction_accepts_dot_value(client):
+    login_default_user(client)
+
+    client.post(
+        "/transactions/",
+        data={
+            "type": "expense",
+            "description": "Internet",
+            "category": "internet",
+            "amount": "120.90",
+            "transaction_date": "2026-04-25",
+        },
+    )
+
+    response = client.get("/transactions/")
+
+    assert response.status_code == 200
+    assert "R$ 120.90".encode("utf-8") in response.data
+
+
+def test_create_transaction_rejects_negative_value(client):
+    login_default_user(client)
+
+    response = client.post(
+        "/transactions/",
+        data={
+            "type": "expense",
+            "description": "Compra inválida",
+            "category": "teste",
+            "amount": "-50",
+            "transaction_date": "2026-04-25",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "O valor deve ser maior que zero.".encode("utf-8") in response.data
+
+
+def test_parse_amount_rejects_invalid_value():
+    service = TransactionService()
+
+    with pytest.raises(ValueError, match="Informe um valor numérico válido."):
+        service.parse_amount("abc")

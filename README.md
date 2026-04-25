@@ -1,21 +1,41 @@
 # Assistente Financeiro IA
 
-Sistema web financeiro em Flask para registrar entradas e saídas manualmente e, em seguida, evoluir para captura por mensagens no estilo:
+Sistema financeiro web em Flask para registrar entradas e saídas, interpretar mensagens financeiras e preparar a evolução futura para atendimento via WhatsApp.
 
-- `gastei 50 no mercado`
-- `recebi 300 de cliente`
-- `paguei 120 de internet`
-- `vendi 500 em móveis`
+## Descrição do projeto
 
-## Objetivo do sistema
+O Assistente Financeiro IA foi estruturado como uma base profissional para controle financeiro pessoal ou de pequenos negócios. O projeto já entrega autenticação, dashboard, parser por mensagem, persistência em SQLite e uma organização clara para crescer com segurança.
 
-Entregar uma base inicial simples, profissional e organizada para um assistente financeiro inspirado na experiência de produtos como o Porquim, com foco em:
+## Funcionalidades atuais
 
-- autenticação de usuários;
+- cadastro de usuário;
+- login com sessão;
+- logout;
+- senha com hash seguro;
 - dashboard financeiro;
-- cadastro manual de movimentações;
-- parser de mensagens financeiras;
-- preparação para integração com WhatsApp.
+- cards de saldo, entradas e saídas;
+- gráfico de gastos por categoria com Chart.js;
+- estados vazios amigáveis;
+- cadastro manual de entradas;
+- cadastro manual de saídas;
+- listagem de movimentações;
+- parser financeiro por mensagem;
+- rota fake de webhook para WhatsApp;
+- base inicial para futuras consultas financeiras por texto;
+- testes automatizados cobrindo fluxos principais.
+
+## Melhorias implementadas nesta etapa
+
+- UX/UI renovada com layout mais moderno, melhor espaçamento e responsividade;
+- mensagens flash mais elegantes e legíveis;
+- loading visual nos botões de login, cadastro, parser e nova movimentação;
+- Post/Redirect/Get nas operações de sucesso em transações;
+- validação monetária com suporte a vírgula e ponto;
+- bloqueio de valores negativos e inválidos;
+- parser financeiro com cobertura para mais palavras-chave;
+- gráfico real de categorias usando dados do backend;
+- documentação expandida;
+- testes adicionais para parser e validações.
 
 ## Tecnologias usadas
 
@@ -26,6 +46,8 @@ Entregar uma base inicial simples, profissional e organizada para um assistente 
 - JavaScript
 - SQLite
 - Jinja2
+- Chart.js
+- Pytest
 
 ## Como instalar
 
@@ -33,11 +55,10 @@ Entregar uma base inicial simples, profissional e organizada para um assistente 
 pip install -r requirements.txt
 ```
 
-Para rodar testes localmente:
+Para desenvolvimento e testes:
 
 ```bash
 pip install -r requirements-dev.txt
-pytest
 ```
 
 ## Como rodar
@@ -48,13 +69,28 @@ python run.py
 
 ## Como acessar no navegador
 
-Abra:
-
 ```text
 http://127.0.0.1:5000
 ```
 
-## Estrutura de pastas
+## Como testar
+
+```bash
+python -m pytest tests
+```
+
+## Como usar o parser
+
+No painel de movimentações, use o bloco "Lançar por mensagem" com frases como:
+
+- `gastei 50 no mercado`
+- `paguei 120 de internet`
+- `comprei 30 em frutas`
+- `recebi 300 de cliente`
+- `ganhei 1000 da venda do iphone`
+- `vendi 500 em móveis`
+
+## Estrutura do projeto
 
 ```text
 assistente-financeiro-ia/
@@ -71,120 +107,41 @@ assistente-financeiro-ia/
 ├── tests/
 ├── run.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── README.md
 └── .gitignore
 ```
 
-## Funcionalidades
+## Estratégia de branches
 
-- cadastro de usuário;
-- login com sessão;
-- logout;
-- senha com hash seguro;
-- dashboard financeiro;
-- cadastro manual de entradas;
-- cadastro manual de saídas;
-- listagem de movimentações;
-- cálculo de saldo total;
-- cálculo de entradas e saídas;
-- gastos por categoria;
-- parser simples de mensagens financeiras;
-- rota fake de webhook para WhatsApp.
+- `main`: somente versão estável;
+- `develop`: integração de desenvolvimento;
+- `feature/professional-improvements`: melhorias profissionais desta etapa;
+- demais features podem continuar segmentadas por domínio ou tela.
 
 ## Fluxo do sistema
 
-1. O usuário cria uma conta.
-2. Faz login no sistema.
-3. Cadastra movimentações manualmente ou por mensagem.
-4. Os dados são salvos no SQLite.
-5. O dashboard mostra saldo, totais e categorias.
-
-## Fluxo do WhatsApp
-
-1. Uma mensagem chega ao webhook fake.
-2. O sistema localiza o usuário por `whatsapp` ou `email`.
-3. O parser interpreta tipo, valor e categoria.
-4. A movimentação é salva com origem `whatsapp_webhook`.
-5. O dashboard passa a refletir esse lançamento.
-
-## Como testar o parser
-
-Pelo painel web:
-
-1. Faça login.
-2. Acesse `Movimentações`.
-3. Use o bloco `Lançar por mensagem`.
-4. Teste frases como:
-
-- `gastei 50 no mercado`
-- `recebi 300 de cliente`
-- `paguei 120 de internet`
-- `vendi 500 em moveis`
-
-Pela rota fake do webhook:
-
-```bash
-curl -X POST http://127.0.0.1:5000/webhooks/whatsapp \
-  -H "Content-Type: application/json" \
-  -d "{\"whatsapp\":\"11999999999\",\"message\":\"recebi 300 de cliente\"}"
-```
-
-## Estratégia de branches
-
-- `main`: somente versão estável.
-- `develop`: integração do desenvolvimento.
-- `feature/auth`: login, cadastro, logout e sessão.
-- `feature/dashboard`: visão consolidada do financeiro.
-- `feature/transactions`: cadastro e listagem de movimentações.
-- `feature/ai-parser`: interpretação das mensagens financeiras.
-- `feature/whatsapp-webhook`: rota fake para WhatsApp.
-- `feature/docs-readme`: documentação do projeto.
-
-## Fluxo sugerido de Pull Request
-
-Para cada feature:
-
-1. Criar a branch a partir de `develop`.
-2. Implementar a feature com commits pequenos.
-3. Publicar a branch no GitHub.
-4. Abrir Pull Request para `develop`.
-5. Após validação, fazer merge.
-
-Exemplo:
-
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/auth
-git push -u origin feature/auth
-```
-
-## Arquitetura
-
-Resumo:
-
-- `routes`: entrada HTTP e respostas HTML/JSON;
-- `services`: regras de negócio;
-- `models`: estruturas de dados;
-- `database`: conexão e schema SQLite;
-- `templates`: interface com Jinja2;
-- `static`: CSS e JavaScript.
-
-Documentação detalhada:
-
-- [Arquitetura](docs/architecture.md)
-- [Estratégia de Branches](docs/branch-strategy.md)
+1. O usuário cria conta ou faz login.
+2. A sessão é mantida pelo Flask.
+3. O usuário registra movimentações manualmente ou por texto.
+4. O SQLite persiste os dados.
+5. O dashboard consolida saldo, categorias e atividade recente.
 
 ## Próximos passos
 
+- consultas financeiras por texto;
 - integração real com WhatsApp Business API;
-- classificação automática mais inteligente;
 - filtros por período;
-- relatórios mensais;
-- exportação de dados;
 - edição e exclusão de lançamentos;
-- multiusuário com perfis e permissões.
+- exportação de dados;
+- limpeza segura da pasta `src/` em branch dedicada, após confirmação final.
 
-## Observação sobre a base atual
+## Observação sobre `src/`
 
-Há uma estrutura anterior em `src/` preservada no repositório para não remover conteúdo já existente sem necessidade. A aplicação principal desta entrega roda pela estrutura em `app/` e pelo arquivo `run.py`.
+A pasta `src/` continua no repositório, mas a aplicação em uso roda por `app/` e `run.py`. A recomendação é remover `src/` apenas depois de uma revisão final em branch separada, para não apagar nada sem necessidade.
+
+## Documentação complementar
+
+- [Arquitetura](docs/arquitetura.md)
+- [Fluxo WhatsApp](docs/fluxo-whatsapp.md)
+- [Melhorias Futuras](docs/melhorias-futuras.md)
