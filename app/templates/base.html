@@ -16,6 +16,7 @@
             {% if session.get("user_id") %}
             <div class="topbar-actions">
                 <nav class="main-nav">
+                    <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
                     <a href="{{ url_for('transactions.index') }}">Movimentações</a>
                 </nav>
                 <span class="user-chip">{{ session.get("user_name") }}</span>
