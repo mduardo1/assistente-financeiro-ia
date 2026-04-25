@@ -65,18 +65,45 @@ class TransactionService:
         connection.commit()
         return True, "Movimentação registrada com sucesso."
 
-    def list_transactions(self, user_id: int) -> list[Transaction]:
-        connection = get_db()
-        rows = connection.execute(
-            """
+    def list_transactions(
+        self,
+        user_id: int,
+        filters: dict[str, str] | None = None,
+    ) -> list[Transaction]:
+        filters = filters or {}
+        query = """
             SELECT id, user_id, type, description, category, amount, source,
                    transaction_date, created_at
             FROM transactions
             WHERE user_id = ?
-            ORDER BY transaction_date DESC, id DESC
-            """,
-            (user_id,),
-        ).fetchall()
+        """
+        params: list[object] = [user_id]
+
+        transaction_type = filters.get("type", "").strip()
+        category = filters.get("category", "").strip().lower()
+        date_start = filters.get("date_start", "").strip()
+        date_end = filters.get("date_end", "").strip()
+
+        if transaction_type in self.VALID_TYPES:
+            query += " AND type = ?"
+            params.append(transaction_type)
+
+        if category:
+            query += " AND category = ?"
+            params.append(category)
+
+        if date_start:
+            query += " AND transaction_date >= ?"
+            params.append(date_start)
+
+        if date_end:
+            query += " AND transaction_date <= ?"
+            params.append(date_end)
+
+        query += " ORDER BY transaction_date DESC, id DESC"
+
+        connection = get_db()
+        rows = connection.execute(query, tuple(params)).fetchall()
 
         return [
             Transaction(
@@ -92,6 +119,20 @@ class TransactionService:
             )
             for row in rows
         ]
+
+    def list_categories(self, user_id: int) -> list[str]:
+        connection = get_db()
+        rows = connection.execute(
+            """
+            SELECT DISTINCT category
+            FROM transactions
+            WHERE user_id = ?
+            ORDER BY category ASC
+            """,
+            (user_id,),
+        ).fetchall()
+
+        return [str(row["category"]) for row in rows]
 
     def parse_amount(self, amount_raw: str) -> Decimal:
         normalized = amount_raw.strip().replace(",", ".")

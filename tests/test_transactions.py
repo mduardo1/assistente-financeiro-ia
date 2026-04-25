@@ -100,3 +100,33 @@ def test_parse_amount_rejects_invalid_value():
 
     with pytest.raises(ValueError, match="Informe um valor numérico válido."):
         service.parse_amount("abc")
+
+
+def test_transaction_filters_by_type_and_category(client):
+    login_default_user(client)
+    client.post(
+        "/transactions/",
+        data={
+            "type": "income",
+            "description": "Venda",
+            "category": "cliente",
+            "amount": "300",
+            "transaction_date": "2026-04-25",
+        },
+    )
+    client.post(
+        "/transactions/",
+        data={
+            "type": "expense",
+            "description": "Mercado",
+            "category": "mercado",
+            "amount": "50",
+            "transaction_date": "2026-04-25",
+        },
+    )
+
+    response = client.get("/transactions/?type=expense&category=mercado")
+
+    assert response.status_code == 200
+    assert b"Mercado" in response.data
+    assert b"Venda" not in response.data

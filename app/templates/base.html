@@ -12,24 +12,29 @@
     <div class="app-shell">
         <header class="topbar">
             <div class="brand-block">
-                <p class="eyebrow">Sistema financeiro inteligente</p>
+                <p class="eyebrow">SaaS financeiro com IA</p>
                 <h1>Assistente Financeiro IA</h1>
-                <p class="brand-subtitle">Controle receitas, despesas e o histórico financeiro com uma interface clara, elegante e preparada para evoluir.</p>
+                <p class="brand-subtitle">Controle receitas, despesas e mensagens financeiras com uma experiência mais próxima de produto real.</p>
             </div>
-            {% if session.get("user_id") %}
             <div class="topbar-actions">
                 <nav class="main-nav">
+                    {% if session.get("user_id") %}
                     <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
                     <a href="{{ url_for('transactions.index') }}">Movimentações</a>
+                    {% endif %}
+                    <a href="{{ url_for('core.about') }}">Sobre</a>
+                    <a href="{{ url_for('core.how_it_works') }}">Como funciona</a>
+                    <a href="{{ url_for('core.next_features') }}">Próximos recursos</a>
                 </nav>
+                {% if session.get("user_id") %}
                 <div class="profile-actions">
                     <span class="user-chip">{{ session.get("user_name") }}</span>
                     <form action="{{ url_for('auth.logout') }}" method="post">
                         <button class="button button-secondary" type="submit">Sair</button>
                     </form>
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
         </header>
 
         <main class="content">

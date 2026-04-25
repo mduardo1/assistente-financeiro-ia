@@ -82,7 +82,8 @@ a:hover {
 .query-prep-text,
 .helper-text,
 .form-footer,
-.activity-item p {
+.activity-item p,
+.page-section p {
     color: var(--muted);
 }
 
@@ -353,6 +354,10 @@ textarea {
     gap: 20px;
 }
 
+.secondary-grid {
+    align-items: stretch;
+}
+
 .metric-card {
     min-height: 168px;
     display: grid;
@@ -372,6 +377,18 @@ textarea {
     gap: 16px;
     align-items: center;
     margin-bottom: 16px;
+}
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
 }
 
 .table-wrapper {
@@ -447,7 +464,8 @@ textarea {
 
 .category-row,
 .activity-item,
-.empty-state-card {
+.empty-state-card,
+.assistant-answer {
     padding: 16px 18px;
     border: 1px solid rgba(111, 91, 62, 0.14);
     border-radius: 18px;
@@ -462,11 +480,13 @@ textarea {
     align-items: center;
 }
 
-.empty-state-card h3 {
+.empty-state-card h3,
+.assistant-answer strong {
     margin: 0 0 8px;
 }
 
-.empty-state-card p {
+.empty-state-card p,
+.assistant-answer p {
     margin: 0;
     color: var(--muted);
     line-height: 1.6;
@@ -490,9 +510,14 @@ textarea {
     text-align: center;
 }
 
-.query-prep-panel {
+.query-panel {
     display: grid;
-    gap: 10px;
+    gap: 14px;
+}
+
+.page-section {
+    display: grid;
+    gap: 12px;
 }
 
 @keyframes spin {
@@ -506,13 +531,15 @@ textarea {
     .summary-grid,
     .dashboard-layout,
     .page-intro,
-    .hero-summary {
+    .hero-summary,
+    .filter-bar {
         grid-template-columns: 1fr;
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .hero-side-info {
+    .hero-side-info,
+    .filter-actions {
         width: 100%;
     }
 }
@@ -539,9 +566,14 @@ textarea {
         width: 100%;
     }
 
-    .main-nav a {
+    .main-nav a,
+    .filter-actions .button {
         width: 100%;
         text-align: center;
+    }
+
+    .filter-actions {
+        flex-direction: column;
     }
 
     .panel {

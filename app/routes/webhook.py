@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from app.services.auth_service import AuthService
-from app.services.parser_service import ParserService
+from app.services.openai_parser_service import OpenAIParserService
 from app.services.transaction_service import TransactionService
 
 
@@ -28,7 +28,7 @@ def whatsapp():
         )
 
     try:
-        parsed = ParserService().parse_message(message)
+        parsed = OpenAIParserService().parse_message(message)
     except ValueError as error:
         return (
             jsonify(

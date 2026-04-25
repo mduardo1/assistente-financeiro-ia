@@ -60,6 +60,31 @@ class ParserService:
 
         return message_without_prefix or "geral"
 
+    def validate_parsed_payload(self, payload: dict[str, object]) -> dict[str, str]:
+        if not isinstance(payload, dict):
+            raise ValueError("A IA retornou um formato inválido para a movimentação.")
+
+        required_fields = ("type", "amount", "category", "description", "transaction_date")
+        for field in required_fields:
+            if field not in payload or payload[field] in (None, ""):
+                raise ValueError(f"O campo '{field}' é obrigatório para salvar a movimentação.")
+
+        transaction_type = str(payload["type"]).strip()
+        if transaction_type not in {"income", "expense"}:
+            raise ValueError("O tipo retornado pela IA é inválido.")
+
+        amount = str(payload["amount"]).strip().replace(",", ".")
+        if amount.startswith("-"):
+            raise ValueError("A IA retornou um valor negativo inválido.")
+
+        return {
+            "type": transaction_type,
+            "amount": amount,
+            "category": str(payload["category"]).strip().lower(),
+            "description": str(payload["description"]).strip(),
+            "transaction_date": str(payload["transaction_date"]).strip(),
+        }
+
     def _normalize(self, value: str) -> str:
         normalized = unicodedata.normalize("NFKD", value.lower())
         return "".join(character for character in normalized if not unicodedata.combining(character))
