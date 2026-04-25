@@ -1,4 +1,5 @@
 from flask import Flask
+from dotenv import load_dotenv
 
 from app.config import Config
 from app.database.connection import close_db, init_app as init_database
@@ -7,6 +8,9 @@ from app.routes.core import core_bp
 from app.routes.dashboard import dashboard_bp
 from app.routes.transactions import transactions_bp
 from app.routes.webhook import webhook_bp
+
+
+load_dotenv()
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:

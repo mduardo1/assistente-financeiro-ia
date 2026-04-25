@@ -23,6 +23,9 @@ def app():
         {
             "DATABASE_PATH": database_path,
             "SECRET_KEY": "test-secret",
+            "USE_OPENAI_PARSER": False,
+            "OPENAI_API_KEY": "",
+            "WHATSAPP_VERIFY_TOKEN": "test-verify-token",
         },
     )
 

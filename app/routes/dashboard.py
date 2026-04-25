@@ -24,18 +24,17 @@ def index():
     )
 
 
-@dashboard_bp.post("/query")
+@dashboard_bp.post("/ask")
 @login_required
-def query():
+def ask():
     question = request.form.get("question", "")
     service = FinancialQueryService()
 
-    try:
-        answer = service.answer(session["user_id"], question)
+    answer = service.answer(session["user_id"], question)
+    if answer.startswith("Ainda não sei responder"):
+        flash("Pergunta ainda não suportada pelo assistente.", "warning")
+    else:
         flash("Consulta processada com sucesso.", "success")
-    except ValueError as error:
-        answer = str(error)
-        flash("Não foi possível responder sua consulta.", "warning")
 
     session["financial_query_answer"] = answer
     session["financial_query_value"] = question

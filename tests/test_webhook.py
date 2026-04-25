@@ -1,4 +1,13 @@
-def test_whatsapp_webhook_creates_transaction(client):
+def test_whatsapp_webhook_verification(client):
+    response = client.get(
+        "/webhook/whatsapp?hub.mode=subscribe&hub.verify_token=test-verify-token&hub.challenge=12345"
+    )
+
+    assert response.status_code == 200
+    assert response.data == b"12345"
+
+
+def test_whatsapp_webhook_receives_meta_style_json(client):
     client.post(
         "/auth/register",
         data={
@@ -10,10 +19,27 @@ def test_whatsapp_webhook_creates_transaction(client):
     )
 
     response = client.post(
-        "/webhooks/whatsapp",
+        "/webhook/whatsapp",
         json={
-            "whatsapp": "11999999999",
-            "message": "recebi 300 de cliente",
+            "object": "whatsapp_business_account",
+            "entry": [
+                {
+                    "changes": [
+                        {
+                            "value": {
+                                "messages": [
+                                    {
+                                        "from": "11999999999",
+                                        "text": {
+                                            "body": "recebi 300 de cliente"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
         },
     )
 

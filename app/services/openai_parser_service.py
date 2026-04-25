@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from typing import Any
 
 from flask import current_app
@@ -8,8 +9,8 @@ from app.services.parser_service import ParserService
 
 class OpenAIParserService:
     """
-    Usa OpenAI Structured Outputs quando configurado.
-    Caso a API não esteja disponível, faz fallback para o parser local.
+    Usa Structured Outputs da OpenAI quando configurado.
+    Em qualquer falha, usa o parser local como fallback.
     """
 
     def __init__(self) -> None:
@@ -39,13 +40,15 @@ class OpenAIParserService:
                     "role": "system",
                     "content": (
                         "Você extrai movimentações financeiras em JSON. "
-                        "Retorne type (income|expense), amount, category, description e transaction_date."
+                        "Retorne type, amount, category, description e transaction_date. "
+                        "Use income para entrada e expense para saída."
                     ),
                 },
                 {
                     "role": "user",
                     "content": (
-                        "Interprete a mensagem financeira a seguir e devolva JSON válido. "
+                        "Interprete a mensagem financeira a seguir. "
+                        f"Se transaction_date não estiver claro, use {date.today().isoformat()}. "
                         f"Mensagem: {message}"
                     ),
                 },
@@ -62,7 +65,12 @@ class OpenAIParserService:
                             "amount": {"type": "number"},
                             "category": {"type": "string"},
                             "description": {"type": "string"},
-                            "transaction_date": {"type": "string"},
+                            "transaction_date": {
+                                "anyOf": [
+                                    {"type": "string"},
+                                    {"type": "null"},
+                                ]
+                            },
                         },
                         "required": [
                             "type",

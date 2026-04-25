@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from datetime import date
+from datetime import date, datetime
 
 
 class ParserService:
@@ -64,7 +64,7 @@ class ParserService:
         if not isinstance(payload, dict):
             raise ValueError("A IA retornou um formato inválido para a movimentação.")
 
-        required_fields = ("type", "amount", "category", "description", "transaction_date")
+        required_fields = ("type", "amount", "category", "description")
         for field in required_fields:
             if field not in payload or payload[field] in (None, ""):
                 raise ValueError(f"O campo '{field}' é obrigatório para salvar a movimentação.")
@@ -77,12 +77,18 @@ class ParserService:
         if amount.startswith("-"):
             raise ValueError("A IA retornou um valor negativo inválido.")
 
+        transaction_date = str(payload.get("transaction_date") or date.today().isoformat()).strip()
+        try:
+            datetime.strptime(transaction_date, "%Y-%m-%d")
+        except ValueError as error:
+            raise ValueError("A IA retornou uma data inválida.") from error
+
         return {
             "type": transaction_type,
             "amount": amount,
             "category": str(payload["category"]).strip().lower(),
             "description": str(payload["description"]).strip(),
-            "transaction_date": str(payload["transaction_date"]).strip(),
+            "transaction_date": transaction_date,
         }
 
     def _normalize(self, value: str) -> str:

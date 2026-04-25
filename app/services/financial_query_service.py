@@ -6,16 +6,6 @@ from app.database.connection import get_db
 class FinancialQueryService:
     """Consultas financeiras locais simples para o dashboard."""
 
-    def can_handle(self, message: str) -> bool:
-        normalized_message = message.strip().lower()
-        supported_questions = (
-            "quanto gastei hoje",
-            "quanto tenho em caixa",
-            "qual categoria mais gastei",
-            "quanto recebi esse mês",
-        )
-        return any(question in normalized_message for question in supported_questions)
-
     def summarize_capabilities(self) -> dict[str, list[str]]:
         return {
             "supported_examples": [
@@ -51,7 +41,7 @@ class FinancialQueryService:
             total = self.get_month_income(user_id)
             return f"Neste mês você recebeu R$ {total:.2f}."
 
-        raise ValueError("Ainda não sei responder essa pergunta. Tente uma das sugestões do painel.")
+        return "Ainda não sei responder essa pergunta, mas estou evoluindo para isso."
 
     def get_current_balance(self, user_id: int) -> float:
         connection = get_db()
