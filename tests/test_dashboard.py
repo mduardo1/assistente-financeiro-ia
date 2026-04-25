@@ -38,3 +38,4 @@ def test_dashboard_displays_financial_summary(client):
     assert response.status_code == 200
     assert "R$ 180.00".encode("utf-8") in response.data
     assert "internet".encode("utf-8") in response.data
+    assert b"expensesChart" in response.data

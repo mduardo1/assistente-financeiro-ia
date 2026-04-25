@@ -8,7 +8,8 @@ class DashboardService:
             """
             SELECT
                 COALESCE(SUM(CASE WHEN type = 'income' THEN amount END), 0) AS total_income,
-                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount END), 0) AS total_expense
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount END), 0) AS total_expense,
+                COUNT(*) AS transaction_count
             FROM transactions
             WHERE user_id = ?
             """,
@@ -39,17 +40,23 @@ class DashboardService:
 
         total_income = float(totals["total_income"])
         total_expense = float(totals["total_expense"])
+        expenses_by_category = [
+            {
+                "category": row["category"],
+                "total": float(row["total"]),
+            }
+            for row in categories
+        ]
 
         return {
             "total_income": total_income,
             "total_expense": total_expense,
             "balance": total_income - total_expense,
-            "expenses_by_category": [
-                {
-                    "category": row["category"],
-                    "total": float(row["total"]),
-                }
-                for row in categories
-            ],
+            "transaction_count": int(totals["transaction_count"]),
+            "expenses_by_category": expenses_by_category,
             "recent_transactions": recent_transactions,
+            "chart_data": {
+                "labels": [item["category"].title() for item in expenses_by_category],
+                "values": [item["total"] for item in expenses_by_category],
+            },
         }

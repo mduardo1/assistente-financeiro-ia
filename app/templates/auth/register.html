@@ -4,28 +4,38 @@
 
 {% block content %}
 <section class="auth-layout">
-    <div class="panel panel-highlight">
+    <div class="panel panel-highlight auth-side-panel">
         <p class="eyebrow">Nova conta</p>
         <h2>Comece seu controle financeiro</h2>
-        <p>Cadastre-se para registrar movimentações manuais hoje e evoluir para lançamentos automáticos por mensagem futuramente.</p>
+        <p>Crie sua conta para registrar movimentações manuais hoje e evoluir para lançamentos automáticos via mensagem no futuro.</p>
+        <div class="feature-pill-list">
+            <span class="feature-pill">Cadastro rápido</span>
+            <span class="feature-pill">Sessão protegida</span>
+            <span class="feature-pill">Base pronta para WhatsApp</span>
+        </div>
     </div>
 
-    <form class="panel form-card" action="{{ url_for('auth.register_post') }}" method="post">
-        <h2>Criar conta</h2>
+    <form class="panel form-card elevated-form" action="{{ url_for('auth.register_post') }}" method="post" data-loading-form>
+        <div class="section-heading compact-heading">
+            <div>
+                <p class="eyebrow">Criar conta</p>
+                <h2>Novo cadastro</h2>
+            </div>
+        </div>
 
         <label for="name">Nome</label>
-        <input id="name" name="name" type="text" value="{{ form_data.name if form_data else '' }}" required>
+        <input id="name" name="name" type="text" value="{{ form_data.name if form_data else '' }}" required autocomplete="name">
 
         <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" value="{{ form_data.email if form_data else '' }}" required>
+        <input id="email" name="email" type="email" value="{{ form_data.email if form_data else '' }}" required autocomplete="email">
 
         <label for="whatsapp">WhatsApp</label>
-        <input id="whatsapp" name="whatsapp" type="text" value="{{ form_data.whatsapp if form_data else '' }}" placeholder="(00) 00000-0000">
+        <input id="whatsapp" name="whatsapp" type="text" value="{{ form_data.whatsapp if form_data else '' }}" placeholder="(00) 00000-0000" autocomplete="tel">
 
         <label for="password">Senha</label>
-        <input id="password" name="password" type="password" required>
+        <input id="password" name="password" type="password" required autocomplete="new-password">
 
-        <button class="button" type="submit">Criar conta</button>
+        <button class="button button-primary" type="submit" data-loading-text="Criando conta...">Criar conta</button>
         <p class="form-footer">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
     </form>
 </section>

@@ -4,22 +4,32 @@
 
 {% block content %}
 <section class="auth-layout">
-    <div class="panel panel-highlight">
+    <div class="panel panel-highlight auth-side-panel">
         <p class="eyebrow">Acesso seguro</p>
         <h2>Entrar na sua conta</h2>
-        <p>Gerencie receitas, despesas e o histórico financeiro em um painel simples e preparado para crescer com IA e WhatsApp.</p>
+        <p>Gerencie receitas, despesas, lançamentos por texto e uma visão consolidada do seu caixa em um painel profissional e responsivo.</p>
+        <div class="feature-pill-list">
+            <span class="feature-pill">Login seguro</span>
+            <span class="feature-pill">Dashboard financeiro</span>
+            <span class="feature-pill">Parser por mensagem</span>
+        </div>
     </div>
 
-    <form class="panel form-card" action="{{ url_for('auth.login_post') }}" method="post">
-        <h2>Login</h2>
+    <form class="panel form-card elevated-form" action="{{ url_for('auth.login_post') }}" method="post" data-loading-form>
+        <div class="section-heading compact-heading">
+            <div>
+                <p class="eyebrow">Bem-vindo</p>
+                <h2>Login</h2>
+            </div>
+        </div>
 
         <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" value="{{ form_data.email if form_data else '' }}" required>
+        <input id="email" name="email" type="email" value="{{ form_data.email if form_data else '' }}" required autocomplete="email">
 
         <label for="password">Senha</label>
-        <input id="password" name="password" type="password" required>
+        <input id="password" name="password" type="password" required autocomplete="current-password">
 
-        <button class="button" type="submit">Entrar</button>
+        <button class="button button-primary" type="submit" data-loading-text="Entrando...">Entrar</button>
         <p class="form-footer">Ainda não tem conta? <a href="{{ url_for('auth.register') }}">Criar cadastro</a></p>
     </form>
 </section>

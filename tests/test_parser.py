@@ -1,3 +1,5 @@
+import pytest
+
 from app.services.parser_service import ParserService
 
 
@@ -15,6 +17,19 @@ def test_parser_understands_income_message():
     assert parsed["type"] == "income"
     assert parsed["amount"] == "500"
     assert parsed["category"] == "moveis"
+
+
+def test_parser_understands_complex_income_message():
+    parsed = ParserService().parse_message("ganhei 1000 da venda do iphone")
+
+    assert parsed["type"] == "income"
+    assert parsed["amount"] == "1000"
+    assert parsed["category"] == "venda do iphone"
+
+
+def test_parser_rejects_empty_message():
+    with pytest.raises(ValueError, match="A mensagem do parser é obrigatória."):
+        ParserService().parse_message("")
 
 
 def test_parser_route_creates_transaction_from_message(client):
@@ -37,6 +52,5 @@ def test_parser_route_creates_transaction_from_message(client):
         data={"message": "paguei 120 de internet"},
     )
 
-    assert response.status_code == 200
-    assert "Mensagem interpretada e movimentação salva com sucesso.".encode("utf-8") in response.data
-    assert "internet".encode("utf-8") in response.data
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/transactions/")

@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 from app.database.connection import get_db
 from app.models.transaction import Transaction
@@ -16,22 +17,28 @@ class TransactionService:
         transaction_type = form_data.get("type", "").strip()
         description = form_data.get("description", "").strip()
         category = form_data.get("category", "").strip().lower()
-        amount_raw = form_data.get("amount", "").strip().replace(",", ".")
+        amount_raw = form_data.get("amount", "").strip()
         transaction_date = form_data.get("transaction_date", "").strip()
 
         if transaction_type not in self.VALID_TYPES:
             return False, "Selecione um tipo de movimentação válido."
 
-        if not description or not category or not amount_raw or not transaction_date:
-            return False, "Preencha descrição, categoria, valor e data."
+        if not description:
+            return False, "A descrição é obrigatória."
+
+        if not category:
+            return False, "A categoria é obrigatória."
+
+        if not amount_raw:
+            return False, "O valor é obrigatório."
+
+        if not transaction_date:
+            return False, "A data é obrigatória."
 
         try:
-            amount = float(amount_raw)
-        except ValueError:
-            return False, "Informe um valor numérico válido."
-
-        if amount <= 0:
-            return False, "O valor deve ser maior que zero."
+            amount = self.parse_amount(amount_raw)
+        except ValueError as error:
+            return False, str(error)
 
         try:
             datetime.strptime(transaction_date, "%Y-%m-%d")
@@ -50,7 +57,7 @@ class TransactionService:
                 transaction_type,
                 description,
                 category,
-                amount,
+                float(amount),
                 source,
                 transaction_date,
             ),
@@ -85,3 +92,19 @@ class TransactionService:
             )
             for row in rows
         ]
+
+    def parse_amount(self, amount_raw: str) -> Decimal:
+        normalized = amount_raw.strip().replace(",", ".")
+
+        if not normalized:
+            raise ValueError("O valor é obrigatório.")
+
+        try:
+            amount = Decimal(normalized)
+        except InvalidOperation as error:
+            raise ValueError("Informe um valor numérico válido.") from error
+
+        if amount <= 0:
+            raise ValueError("O valor deve ser maior que zero.")
+
+        return amount.quantize(Decimal("0.01"))
