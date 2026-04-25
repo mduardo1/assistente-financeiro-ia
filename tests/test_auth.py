@@ -46,4 +46,4 @@ def test_login_creates_session(client):
 
     assert response.status_code == 200
     assert b"Login realizado com sucesso" in response.data
-    assert "Movimentações registradas".encode("utf-8") in response.data
+    assert "Gastos por categoria".encode("utf-8") in response.data
