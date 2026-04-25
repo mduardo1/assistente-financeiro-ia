@@ -1,5 +1,5 @@
 from pathlib import Path
-import tempfile
+import uuid
 
 import pytest
 
@@ -13,16 +13,21 @@ class TestConfig(Config):
 
 @pytest.fixture()
 def app():
-    temp_dir = tempfile.TemporaryDirectory()
-    database_path = Path(temp_dir.name) / "test.db"
+    workspace_temp_dir = Path.cwd() / ".tmp_test_runs"
+    workspace_temp_dir.mkdir(exist_ok=True)
+    database_path = workspace_temp_dir / f"test_{uuid.uuid4().hex}.db"
 
-    class LocalTestConfig(TestConfig):
-        DATABASE_PATH = database_path
-        SECRET_KEY = "test-secret"
+    LocalTestConfig = type(
+        "LocalTestConfig",
+        (TestConfig,),
+        {
+            "DATABASE_PATH": database_path,
+            "SECRET_KEY": "test-secret",
+        },
+    )
 
     flask_app = create_app(LocalTestConfig)
     yield flask_app
-    temp_dir.cleanup()
 
 
 @pytest.fixture()
