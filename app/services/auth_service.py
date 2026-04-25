@@ -65,3 +65,39 @@ class AuthService:
             whatsapp=row["whatsapp"],
             created_at=row["created_at"],
         )
+
+    def get_user_by_contact(self, email: str | None = None, whatsapp: str | None = None) -> User | None:
+        connection = get_db()
+
+        if email:
+            row = connection.execute(
+                """
+                SELECT id, name, email, password_hash, whatsapp, created_at
+                FROM users
+                WHERE email = ?
+                """,
+                (email.strip().lower(),),
+            ).fetchone()
+        elif whatsapp:
+            row = connection.execute(
+                """
+                SELECT id, name, email, password_hash, whatsapp, created_at
+                FROM users
+                WHERE whatsapp = ?
+                """,
+                (whatsapp.strip(),),
+            ).fetchone()
+        else:
+            return None
+
+        if row is None:
+            return None
+
+        return User(
+            id=row["id"],
+            name=row["name"],
+            email=row["email"],
+            password_hash=row["password_hash"],
+            whatsapp=row["whatsapp"],
+            created_at=row["created_at"],
+        )
